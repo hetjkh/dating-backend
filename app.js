@@ -16,10 +16,11 @@ const upload = multer({ dest: "uploads/" });
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = ["http://localhost:3000", "https://dating-mwt3.vercel.app"];
+const allowedOrigins = ["http://localhost:3000", "https://dating-mwt3.vercel.app",'https://dating-s3zh.vercel.app',];
+
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },

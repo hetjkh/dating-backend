@@ -16,7 +16,7 @@ const upload = multer({ dest: "uploads/" });
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = ["http://localhost:3000", "https://dating-mwt3.vercel.app",'https://dating-s3zh.vercel.app',];
+const allowedOrigins = ["http://localhost:3000", "https://dating-mwt3.vercel.app","https://dating-s3zh.vercel.app/video"];
 
 const io = new Server(server, {
   cors: {
@@ -28,12 +28,8 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-  origin: "*",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
 // Cloudinary Configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

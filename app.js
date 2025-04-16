@@ -16,11 +16,9 @@ const upload = multer({ dest: "uploads/" });
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = ["https://dating-mwt3.vercel.app","https://dating-s3zh.vercel.app","dating-s3zh-git-master-het-janis-projects.vercel.app","dating-s3zh-137926jak-het-janis-projects.vercel.app"];
-
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -28,7 +26,7 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 // Cloudinary Configuration
 cloudinary.config({
@@ -98,9 +96,9 @@ const generateToken = (user, res) => {
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true, // Required for HTTPS (Vercel is HTTPS)
-    sameSite: "None", // Must be 'None' for cross-site cookies
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (adjust as needed)
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
@@ -139,15 +137,6 @@ io.use(verifyTokenSocket);
 
 io.on("connection", async (socket) => {
   console.log("User connected with ID:", socket.userId);
-
-  // Verify user profile
-  const profile = await Profile.findOne({ userId: socket.userId });
-  if (!profile || !profile.profileCompleted) {
-    console.log("Profile incomplete or missing for user:", socket.userId);
-    socket.emit("error", { message: "Complete your profile to chat!" });
-    socket.disconnect();
-    return;
-  }
 
   const userData = { socket, userId: socket.userId };
 
@@ -418,5 +407,6 @@ app.get("/user/profile", async (req, res) => {
     res.status(401).json({ message: "Invalid token" });
   }
 });
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+
+// Start server
+server.listen(5000, () => console.log("Backend running on port 5000"));

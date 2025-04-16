@@ -94,14 +94,15 @@ const ProfileSchema = new mongoose.Schema({
 const Profile = mongoose.model("Profile", ProfileSchema);
 
 // JWT Functions
+// JWT Functions
 const JWT_SECRET = process.env.JWT_SECRET;
 const generateToken = (user, res) => {
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    secure: true, // Required for HTTPS (Vercel is HTTPS)
+    sameSite: "None", // Must be 'None' for cross-site cookies
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (adjust as needed)
   });
 };
 

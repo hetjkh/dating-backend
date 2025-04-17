@@ -307,9 +307,14 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Logged out" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true, // required for HTTPS
+    sameSite: "None", // must be 'None' for cross-site cookies
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 });
+
 
 // Google OAuth
 passport.use(

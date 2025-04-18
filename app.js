@@ -17,7 +17,7 @@ const upload = multer({ dest: "uploads/" });
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = ["https://dating-mwt3.vercel.app","https://dating-s3zh.vercel.app","dating-s3zh-git-master-het-janis-projects.vercel.app","dating-s3zh-137926jak-het-janis-projects.vercel.app","'http://localhost:3000'"];
+const allowedOrigins = ["https://dating-mwt3.vercel.app","https://dating-s3zh.vercel.app","dating-s3zh-git-master-het-janis-projects.vercel.app","dating-s3zh-137926jak-het-janis-projects.vercel.app","http://localhost:3000"];
 
 const io = new Server(server, {
   cors: {
@@ -94,15 +94,14 @@ const ProfileSchema = new mongoose.Schema({
 const Profile = mongoose.model("Profile", ProfileSchema);
 
 // JWT Functions
-// JWT Functions
 const JWT_SECRET = process.env.JWT_SECRET;
 const generateToken = (user, res) => {
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true, // Required for HTTPS (Vercel is HTTPS)
-    sameSite: "None", // Must be 'None' for cross-site cookies
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (adjust as needed)
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
@@ -315,7 +314,6 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
-
 // Google OAuth
 passport.use(
   new GoogleStrategy(
@@ -418,5 +416,4 @@ app.get("/user/profile", async (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+server.listen(5000, () => console.log("Backend running on port 5000"));

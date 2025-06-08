@@ -321,9 +321,9 @@ io.on("connection", async (socket) => {
   const pairUser = async (userData) => {
     const { socket, userId } = userData;
     leaveCurrentSession();
-
+  
     waitingUsers = waitingUsers.filter((u) => u.userId !== userId);
-
+  
     let match = null;
     for (let i = 0; i < waitingUsers.length; i++) {
       const potentialMatch = waitingUsers[i];
@@ -336,17 +336,26 @@ io.on("connection", async (socket) => {
         }
       }
     }
-
+  
     if (match) {
       const sessionId = `${userId}-${match.userId}-${Date.now()}`;
       match.socket.leave(getSessionIdFromRooms.call(match.socket));
       socket.join(sessionId);
       match.socket.join(sessionId);
-      io.to(sessionId).emit("paired", {
+  
+      // Determine offerer and answerer based on userId comparison
+      const isOfferer = userId < match.userId; // Smaller userId is the offerer
+      socket.emit("paired", {
         message: "Connected with a stranger!",
         sessionId,
+        role: isOfferer ? "offerer" : "answerer",
       });
-      console.log("Paired users in session:", sessionId);
+      match.socket.emit("paired", {
+        message: "Connected with a stranger!",
+        sessionId,
+        role: isOfferer ? "answerer" : "offerer",
+      });
+      console.log("Paired users in session:", sessionId, "Offerer:", isOfferer ? userId : match.userId);
       startSessionTimer(sessionId);
     } else {
       waitingUsers.push(userData);
